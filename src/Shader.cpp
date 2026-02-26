@@ -3,7 +3,7 @@
 #include "Shader.hpp"
 
 #ifdef __APPLE__
-static const char* src_vshader =R"(
+static const char* src_vshader = R"(
 #version 120
 uniform mat4 MVP;
 uniform mat4 MV;
@@ -51,7 +51,7 @@ void main(){
     
 }
 )";
-#elif __linux__
+#else
 
 static const char* src_vshader = R"(
 #version 130
@@ -103,200 +103,199 @@ void main(){
 
 Shader::Shader()
 {
-    //Create program
-    pid = glCreateProgram();
-    
-    //Bind program
-    glUseProgram(pid);
+	//Create program
+	pid = glCreateProgram();
+
+	//Bind program
+	glUseProgram(pid);
 #ifdef __APPLE__
-    //Create Vertex array object
-    glGenVertexArraysAPPLE(1, &VAO);
-    glBindVertexArrayAPPLE(VAO);
+	//Create Vertex array object
+	glGenVertexArraysAPPLE(1, &VAO);
+	glBindVertexArrayAPPLE(VAO);
 #elif __linux__
-    glGenVertexArrays(1,&VAO);
-    glBindVertexArray(VAO);
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
 #endif
-    
-    //Create three buffers
-    glGenBuffers(1, &VertexBuffer);
-    glGenBuffers(1, &NormalBuffer);
-    glGenBuffers(1, &BarycBuffer);
+
+	//Create three buffers
+	glGenBuffers(1, &VertexBuffer);
+	glGenBuffers(1, &NormalBuffer);
+	glGenBuffers(1, &BarycBuffer);
 }
 
 void Shader::init()
 {
-    addVertexShader(src_vshader);
-    addFragmentShader(src_fshader);
-    linkProgram();
+	addVertexShader(src_vshader);
+	addFragmentShader(src_fshader);
+	linkProgram();
 }
 
 //Initialize vertex buffer
 void Shader::bindVertexBuffer(const std::vector<double>& buffer)
 {
-    glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
-    
-    glBufferData(GL_ARRAY_BUFFER, sizeof(double)*buffer.size(), buffer.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(double) * buffer.size(), buffer.data(), GL_STATIC_DRAW);
 }
 
 //Initialize normal buffer
 void Shader::bindNormalBuffer(const std::vector<double>& buffer)
 {
-    glBindBuffer(GL_ARRAY_BUFFER, NormalBuffer);
-    
-    glBufferData(GL_ARRAY_BUFFER, sizeof(double)*buffer.size(), buffer.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, NormalBuffer);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(double) * buffer.size(), buffer.data(), GL_STATIC_DRAW);
 }
 
 //Initialize bary center buffer
 void Shader::bindBarycBuffer(const std::vector<double>& buffer)
 {
-    glBindBuffer(GL_ARRAY_BUFFER, BarycBuffer);
-    
-    glBufferData(GL_ARRAY_BUFFER, sizeof(double)*buffer.size(), buffer.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, BarycBuffer);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(double) * buffer.size(), buffer.data(), GL_STATIC_DRAW);
 }
 
 //Bind buffers
-void Shader::bindBuffers(const std::vector<double> &vbuffer, const std::vector<double> &nbuffer, const std::vector<double> &ebuffer)
+void Shader::bindBuffers(const std::vector<double>& vbuffer, const std::vector<double>& nbuffer, const std::vector<double>& ebuffer)
 {
-    bindVertexBuffer(vbuffer);
-    bindNormalBuffer(nbuffer);
-    bindBarycBuffer(ebuffer);
+	bindVertexBuffer(vbuffer);
+	bindNormalBuffer(nbuffer);
+	bindBarycBuffer(ebuffer);
 }
 
 //Set vertex position
 void Shader::setPosition()
 {
-    GLint location = glGetAttribLocation(pid, "vposition");
-        
-    glEnableVertexAttribArray(location);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
-    
-    glVertexAttribPointer(location, 3, GL_DOUBLE, GL_FALSE, 0, 0);
+	GLint location = glGetAttribLocation(pid, "vposition");
+
+	glEnableVertexAttribArray(location);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
+
+	glVertexAttribPointer(location, 3, GL_DOUBLE, GL_FALSE, 0, 0);
 }
 
 //Set vertex normal
 void Shader::setNormal()
 {
-    
-    GLint location = glGetAttribLocation(pid, "vnormal");
-    
-    glEnableVertexAttribArray(location);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, NormalBuffer);
-    
-    glVertexAttribPointer(location, 3, GL_DOUBLE, GL_FALSE, 0, 0);
+
+	GLint location = glGetAttribLocation(pid, "vnormal");
+
+	glEnableVertexAttribArray(location);
+
+	glBindBuffer(GL_ARRAY_BUFFER, NormalBuffer);
+
+	glVertexAttribPointer(location, 3, GL_DOUBLE, GL_FALSE, 0, 0);
 }
 
 void Shader::setBarycenter()
 {
- //Set bary center center used to display edges
-    GLint location = glGetAttribLocation(pid, "vbaryc");
-    
-    glEnableVertexAttribArray(location);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, BarycBuffer);
-    
-    glVertexAttribPointer(location, 3, GL_DOUBLE, GL_FALSE, 0, 0);
+	//Set bary center center used to display edges
+	GLint location = glGetAttribLocation(pid, "vbaryc");
+
+	glEnableVertexAttribArray(location);
+
+	glBindBuffer(GL_ARRAY_BUFFER, BarycBuffer);
+
+	glVertexAttribPointer(location, 3, GL_DOUBLE, GL_FALSE, 0, 0);
 }
 
 //Set attributes
 void Shader::setAttribute()
 {
-    glUseProgram(pid);
-    bindVAO();
-    
-    setPosition();
-    setNormal();
-    setBarycenter();
+	glUseProgram(pid);
+	bindVAO();
+
+	setPosition();
+	setNormal();
+	setBarycenter();
 }
 
 //Set matrix of shader
 void Shader::setMatrix(const char* name, const Eigen::Matrix4f& mat)
 {
-    glUseProgram(pid);
-    
-    GLint location = glGetUniformLocation(pid, name);
-    
-    glUniformMatrix4fv(location,1,GL_FALSE,mat.data());
+	glUseProgram(pid);
+
+	GLint location = glGetUniformLocation(pid, name);
+
+	glUniformMatrix4fv(location, 1, GL_FALSE, mat.data());
 }
 
 //Set uniform
 void Shader::setUniform(const char* name, int value)
 {
-    glUseProgram(pid);
-    
-    GLint location = glGetUniformLocation(pid, name);
-    
-    glUniform1i(location,value);
+	glUseProgram(pid);
+
+	GLint location = glGetUniformLocation(pid, name);
+
+	glUniform1i(location, value);
 }
 
 void Shader::addVertexShader(const char* code)
 {
-    //Create vertex shader
-    GLuint vshaderID = glCreateShader(GL_VERTEX_SHADER);
-    
-    //Compile fragment shader
-    glShaderSource(vshaderID, 1, &code, NULL);
-    glCompileShader(vshaderID);
-    
-    //Check if compiled
-    GLint Success = GL_FALSE;
-    glGetShaderiv(vshaderID, GL_COMPILE_STATUS, &Success);
-    if (!Success) {
-        int InfoLogLength;
-        glGetShaderiv(vshaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
-        std::vector<char> VertexShaderErrorMessage(InfoLogLength);
-        glGetShaderInfoLog(vshaderID, InfoLogLength, NULL, &VertexShaderErrorMessage[0]);
-        std::cerr << std::string(&VertexShaderErrorMessage[0])<<"\n";
-        std::exit(1);
-    } else {
-        glAttachShader(pid, vshaderID);
-    }
+	//Create vertex shader
+	GLuint vshaderID = glCreateShader(GL_VERTEX_SHADER);
+
+	//Compile fragment shader
+	glShaderSource(vshaderID, 1, &code, NULL);
+	glCompileShader(vshaderID);
+
+	//Check if compiled
+	GLint Success = GL_FALSE;
+	glGetShaderiv(vshaderID, GL_COMPILE_STATUS, &Success);
+	if (!Success) {
+		int InfoLogLength;
+		glGetShaderiv(vshaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
+		std::vector<char> VertexShaderErrorMessage(InfoLogLength);
+		glGetShaderInfoLog(vshaderID, InfoLogLength, NULL, &VertexShaderErrorMessage[0]);
+		std::cerr << std::string(&VertexShaderErrorMessage[0]) << "\n";
+		std::exit(1);
+	}
+	else {
+		glAttachShader(pid, vshaderID);
+	}
 }
 
 void Shader::addFragmentShader(const char* code)
 {
-    // Create the Fragment Shader
-    GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
-        
-    // Compile Fragment Shader
-    glShaderSource(FragmentShaderID, 1, &code, NULL);
-    glCompileShader(FragmentShaderID);
-        
-    // Check Fragment Shader
-    GLint Success = GL_FALSE;
-    glGetShaderiv(FragmentShaderID, GL_COMPILE_STATUS, &Success);
-    if (!Success) {
-        int InfoLogLength;
-        glGetShaderiv(FragmentShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
-        std::vector<char> FragmentShaderErrorMessage(InfoLogLength);
-        glGetShaderInfoLog(FragmentShaderID, InfoLogLength, NULL, &FragmentShaderErrorMessage[0]);
-        std::cerr << std::string(&FragmentShaderErrorMessage[0]);
-        std::exit(1);
-    } else {
-        glAttachShader(pid, FragmentShaderID);
-    }
+	// Create the Fragment Shader
+	GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+
+	// Compile Fragment Shader
+	glShaderSource(FragmentShaderID, 1, &code, NULL);
+	glCompileShader(FragmentShaderID);
+
+	// Check Fragment Shader
+	GLint Success = GL_FALSE;
+	glGetShaderiv(FragmentShaderID, GL_COMPILE_STATUS, &Success);
+	if (!Success) {
+		int InfoLogLength;
+		glGetShaderiv(FragmentShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
+		std::vector<char> FragmentShaderErrorMessage(InfoLogLength);
+		glGetShaderInfoLog(FragmentShaderID, InfoLogLength, NULL, &FragmentShaderErrorMessage[0]);
+		std::cerr << std::string(&FragmentShaderErrorMessage[0]);
+		std::exit(1);
+	}
+	else {
+		glAttachShader(pid, FragmentShaderID);
+	}
 }
 
 void Shader::linkProgram()
 {
-    //Link program
-    glLinkProgram(pid);
-    
-    //Check status
-    //Codes below refer to Andrea's OpenGP/Shader.cpp
-    //https://github.com/ataiya/dgp/blob/master/OpenGP/GL/Shader.cpp
-    GLint Success = GL_FALSE;
-    glGetProgramiv(pid, GL_LINK_STATUS, &Success);
-    if (!Success) {
-        int InfoLogLength;
-        glGetProgramiv(pid, GL_INFO_LOG_LENGTH, &InfoLogLength);
-        std::vector<char> ProgramErrorMessage( std::max(InfoLogLength, int(1)) );
-        glGetProgramInfoLog(pid, InfoLogLength, NULL, &ProgramErrorMessage[0]);
-        std::cerr << "Failed: " << &ProgramErrorMessage[0];
-        std::exit(1);
-    }
+	//Link program
+	glLinkProgram(pid);
+
+	//Check status
+	//Codes below refer to Andrea's OpenGP/Shader.cpp
+	//https://github.com/ataiya/dgp/blob/master/OpenGP/GL/Shader.cpp
+	GLint Success = GL_FALSE;
+	glGetProgramiv(pid, GL_LINK_STATUS, &Success);
+	if (!Success) {
+		int InfoLogLength;
+		glGetProgramiv(pid, GL_INFO_LOG_LENGTH, &InfoLogLength);
+		std::vector<char> ProgramErrorMessage(std::max(InfoLogLength, int(1)));
+		glGetProgramInfoLog(pid, InfoLogLength, NULL, &ProgramErrorMessage[0]);
+		std::cerr << "Failed: " << &ProgramErrorMessage[0];
+		std::exit(1);
+	}
 }
-
-
-

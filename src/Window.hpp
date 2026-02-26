@@ -8,6 +8,12 @@
 #include<GLUT/glut.h>
 #elif __linux__
 #include <GL/glut.h>
+#elif _WIN32
+#include <glad/glad.h>
+#include <gl/glut.h>
+#undef near
+#undef far
+#pragma comment(lib, "opengl32.lib")
 #endif
 
 #include <eigen3/Eigen/Dense>

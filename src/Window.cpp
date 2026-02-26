@@ -5,7 +5,6 @@
 Window* Window::active = nullptr;
 
 
-
 Window::Window(int* argc, char** argv, int height, int width):
 Height(height),Width(width),current(0),max(-1),showEdge(0)
 {
@@ -16,15 +15,20 @@ Height(height),Width(width),current(0),max(-1),showEdge(0)
     Sca.setIdentity();
     
     Model.setIdentity();
-
-    glutInit(argc, argv);
     
+    glutInit(argc, argv);
+
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     
     glutInitWindowSize(width,height);
     
     glutCreateWindow("Adaptive Subdivision");
-    
+  
+    if (!gladLoadGL()) 
+    { 
+        std::cerr << "Failed to initialize GLAD";
+    }
+
     //Register functions
     glutDisplayFunc(show);
     
@@ -37,7 +41,7 @@ Height(height),Width(width),current(0),max(-1),showEdge(0)
     glutMouseFunc(mouse);
     
     glutMotionFunc(motion);
-    
+
     glEnable(GL_DEPTH_TEST);
 }
 

@@ -8,6 +8,8 @@
 #define GL_GLEXT_PROTOTYPES 1
 #include <GL/gl.h>
 #include <GL/glext.h>
+#elif _WIN32
+#include <glad/glad.h>
 #endif
 
 #include<vector>
@@ -65,7 +67,7 @@ public:
         //Bind vertex array object
         glBindVertexArrayAPPLE(VAO);
     }
-#elif __linux__
+#else
     void bindVAO()
     {
         glBindVertexArray(VAO);
