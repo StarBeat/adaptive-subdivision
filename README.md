@@ -24,9 +24,9 @@ make
 ```
 
 ### Run the application
-e.g. $./demo -a -l 10 -t 20.0 -m loop <${model}.off
-cmd.exe  xmake run adaptive_subdivision -a -l 10 -t 20.0 -m loop < ${model}.off
-powershell.exe  Get-Content ${model}.off | xmake run adaptive_subdivision -a -l 10 -t 20.0 -m loop 
+e.g. $./demo -a -l 10 -t 20.0 -m loop <${model}.off  
+cmd.exe  xmake run adaptive_subdivision -a -l 10 -t 20.0 -m loop < ${model}.off  
+powershell.exe  Get-Content ${model}.off | xmake run adaptive_subdivision -a -l 10 -t 20.0 -m loop   
 
 ## Command Line Options
 - \-t ${angle}
